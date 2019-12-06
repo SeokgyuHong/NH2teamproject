@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <pthread.h>
-	
+
 #define BUF_SIZE 100
 #define NAME_SIZE 20
 	
@@ -33,7 +33,12 @@ int main(int argc, char *argv[])
 		exit(1);
 	 }
 	
-
+	printf("***********영어단어 맞히기 게임에 오신걸 환영합니다***********\n");
+	printf("	------Rule------\n");
+	printf("	1.두명의 플레이어가 필요합니다\n");
+	printf("	2.한 알파벳씩 입력해야합니다\n");
+	printf("	3.먼저 맞히는 사람이 승리합니다\n");
+	printf("Player Name : ");
 	scanf("%s",n);
 	fgetc(stdin);
 
@@ -48,7 +53,7 @@ int main(int argc, char *argv[])
 	if(connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1)
 		error_handling("connect() error");
 	
-
+	printf("Please wait for other player\n");
 
 	write(sock,name,strlen(name));
 	len=read(sock, m, NAME_SIZE+BUF_SIZE-1);
@@ -63,22 +68,54 @@ int main(int argc, char *argv[])
 	pthread_join(snd_thread, &thread_return);
 	pthread_join(rcv_thread, &thread_return);
 
-	close(sock);  
+	close(sock);
 	return 0;
 }
 	
 void * send_msg(void * arg)   // send thread main
 {
+	int sock=*((int*)arg);
+	char name_msg[NAME_SIZE+BUF_SIZE];
+	
+	printf("알파벳을 하나씩 입력하시오\n");
+	while(1) 
+	{
+		if(total_cnt == 0)
+		{
+			printf("out\n");
+			close(sock);
+			exit(0);
+		}
+		else
+		{
+			fgets(msg, BUF_SIZE, stdin);
+			total_cnt--;
+			printf("remained count : %d\n",total_cnt);
+		}
+		
+		write(sock, msg, strlen(msg));
+	}
+	return NULL;
 }
 	
 void * recv_msg(void * arg)   // read thread main
 {
-
+	int sock=*((int*)arg);
+	char name_msg[NAME_SIZE+BUF_SIZE];
+	int str_len;
+	while(1)
+	{
+		str_len=read(sock, name_msg, NAME_SIZE+BUF_SIZE-1);
+		if(str_len==-1) 
+			return (void*)-1;
+		name_msg[str_len]=0;
+		fputs(name_msg, stdout);
+	}
+	return NULL;
 }
 	
 void error_handling(char *msg)
 {
 	fputs(msg, stderr);
-	fputc('\n', stderr);
 	exit(1);
 }
