@@ -40,6 +40,9 @@ int main(int argc, char *argv[])
 	int clnt_adr_sz;
 	pthread_t t_id;
 	char fruit_data[5][10]={"banana","apple","melon","mango","grape"};
+    char country_data[5][10] = { "korea","japan","china","gambia","russia" };
+    char color_data[5][10] = { "ashgray","coralblue","blueblack","ashbrown","milkbrown" };
+    char animal_data[5][10] = { "zebra","lion","tiger","elephant","giraffe" };
 	char startgame[40];
 	
 	int i;
@@ -66,15 +69,53 @@ int main(int argc, char *argv[])
 		error_handling("listen() error");
 
 	select_subject = rand()%4;
+    switch (select_subject)
+    {
+    case 0:
+        strcpy(subject, "fruit");
+        strcpy(startgame, "GameStart (subject : fruit)\n");
+        for (i = 0; i < 5; i++)
+        {
+            strcpy(data[i].name, fruit_data[i]);
+            data[i].len = strlen(fruit_data[i]);
+            //		 printf("%s %d", data[i].name,data[i].len);
+        }
+        break;
 
-	strcpy(subject,"fruit");
-	strcpy(startgame,"GameStart (subject : fruit)\n");
-	for(i=0 ; i<5 ; i++)
-	{
-		strcpy(data[i].name,fruit_data[i]);
-		data[i].len = strlen(fruit_data[i]);
+    case 1:
+        strcpy(subject, "country");
+        strcpy(startgame, "GameStart (subject : country)\n");
+        for (i = 0; i < 5; i++)
+        {
+            strcpy(data[i].name, country_data[i]);
+            data[i].len = strlen(country_data[i]);
+            //		 printf("%s %d", data[i].name,data[i].len);
+        }
+        break;
 
-	}
+    case 2:
+        strcpy(subject, "color");
+        strcpy(startgame, "GameStart (subject : color)\n");
+        for (i = 0; i < 5; i++)
+        {
+            strcpy(data[i].name, color_data[i]);
+            data[i].len = strlen(color_data[i]);
+            //		 printf("%s %d", data[i].name,data[i].len);
+        }
+        break;
+
+    case 3:
+        strcpy(subject, "animal");
+        strcpy(startgame, "GameStart (subject : animal)\n");
+        for (i = 0; i < 5; i++)
+        {
+            strcpy(data[i].name, animal_data[i]);
+            data[i].len = strlen(animal_data[i]);
+            //		 printf("%s %d", data[i].name,data[i].len);
+        }
+        break;
+    }
+
 
 	 
 	
