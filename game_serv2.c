@@ -236,7 +236,20 @@ void * handle_clnt(void * arg)
 }
 void end_send(int sock)
 {
+    int i;
+    int check_clnt;
+    char msg[100] = { 0, };
+    pthread_mutex_lock(&mutx);
+    for (i = 0; i < clnt_cnt; i++)
+    {
+        if (clnt_socks[i] == sock)
+            check_clnt = i;
+    }
 
+    sprintf(msg, "Game end! Player %s win! Answer is %s (press q or Q to exit)\n", clnt_name[check_clnt], select_data.name);
+    for (i = 0; i < clnt_cnt; i++)
+        write(clnt_socks[i], msg, strlen(msg));
+    pthread_mutex_unlock(&mutx);
 }
 
 void send_msg(char * msg, int len)   // send to all
