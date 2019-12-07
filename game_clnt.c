@@ -93,6 +93,13 @@ void * send_msg(void * arg)   // send thread main
 			printf("remained count : %d\n",total_cnt);
 		}
 		
+		
+		if(!strcmp(msg,"q\n")||!strcmp(msg,"Q\n")) 
+		{
+			close(sock);
+			exit(0);
+		}
+
 		write(sock, msg, strlen(msg));
 	}
 	return NULL;
@@ -117,5 +124,6 @@ void * recv_msg(void * arg)   // read thread main
 void error_handling(char *msg)
 {
 	fputs(msg, stderr);
+	fputc('\n', stderr);
 	exit(1);
 }
