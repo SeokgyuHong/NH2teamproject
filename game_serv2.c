@@ -32,6 +32,7 @@ fruit data[5];
 fruit select_data;
 char subject[10];
 int select_subject;
+char used_alpha[50] = " *used alphabet : ";
 
 int main(int argc, char *argv[])
 {
@@ -40,9 +41,9 @@ int main(int argc, char *argv[])
 	int clnt_adr_sz;
 	pthread_t t_id;
 	char fruit_data[5][10]={"banana","apple","melon","mango","grape"};
-    char country_data[5][10] = { "korea","japan","china","gambia","russia" };
-    char color_data[5][10] = { "ashgray","coralblue","blueblack","ashbrown","milkbrown" };
-    char animal_data[5][10] = { "zebra","lion","tiger","elephant","giraffe" };
+	char country_data[5][10]={"korea","japan","china","gambia","russia"};
+	char color_data[5][10] = {"ashgray","coralblue","blueblack","ashbrown","milkbrown"};
+	char animal_data[5][10] = {"zebra","lion","tiger","elephant","giraffe"};
 	char startgame[40];
 	
 	int i;
@@ -67,66 +68,65 @@ int main(int argc, char *argv[])
 		error_handling("bind() error");
 	if(listen(serv_sock, 5)==-1)
 		error_handling("listen() error");
-
+	srand((int)time(NULL));
 	select_subject = rand()%4;
-    switch (select_subject)
-    {
-    case 0:
-        strcpy(subject, "fruit");
-        strcpy(startgame, "GameStart (subject : fruit)\n");
-        for (i = 0; i < 5; i++)
-        {
-            strcpy(data[i].name, fruit_data[i]);
-            data[i].len = strlen(fruit_data[i]);
-            //		 printf("%s %d", data[i].name,data[i].len);
-        }
-        break;
-
-    case 1:
-        strcpy(subject, "country");
-        strcpy(startgame, "GameStart (subject : country)\n");
-        for (i = 0; i < 5; i++)
-        {
-            strcpy(data[i].name, country_data[i]);
-            data[i].len = strlen(country_data[i]);
-            //		 printf("%s %d", data[i].name,data[i].len);
-        }
-        break;
-
-    case 2:
-        strcpy(subject, "color");
-        strcpy(startgame, "GameStart (subject : color)\n");
-        for (i = 0; i < 5; i++)
-        {
-            strcpy(data[i].name, color_data[i]);
-            data[i].len = strlen(color_data[i]);
-            //		 printf("%s %d", data[i].name,data[i].len);
-        }
-        break;
-
-    case 3:
-        strcpy(subject, "animal");
-        strcpy(startgame, "GameStart (subject : animal)\n");
-        for (i = 0; i < 5; i++)
-        {
-            strcpy(data[i].name, animal_data[i]);
-            data[i].len = strlen(animal_data[i]);
-            //		 printf("%s %d", data[i].name,data[i].len);
-        }
-        break;
-    }
-
-
+	
+	switch(select_subject)
+	{
+		case 0:
+			strcpy(subject,"fruit");
+			strcpy(startgame,"GameStart (subject : fruit)\n");
+			for(i=0 ; i<5 ; i++)
+			{
+				strcpy(data[i].name,fruit_data[i]);
+				data[i].len = strlen(fruit_data[i]);
+		//		 printf("%s %d", data[i].name,data[i].len);
+			}
+			break;
+			
+		case 1:
+			strcpy(subject,"country");
+			strcpy(startgame,"GameStart (subject : country)\n");
+			for(i=0 ; i<5 ; i++)
+			{
+				strcpy(data[i].name,country_data[i]);
+				data[i].len = strlen(country_data[i]);
+	//		 printf("%s %d", data[i].name,data[i].len);
+			}	
+			break;
+				
+		case 2:
+			strcpy(subject,"color");
+			strcpy(startgame,"GameStart (subject : color)\n");
+			for(i=0 ; i<5 ; i++)
+			{
+				strcpy(data[i].name,color_data[i]);
+				data[i].len = strlen(color_data[i]);
+		//		 printf("%s %d", data[i].name,data[i].len);
+			}	
+			break;
+					
+		case 3:
+			strcpy(subject,"animal");
+			strcpy(startgame,"GameStart (subject : animal)\n");
+			for(i=0 ; i<5 ; i++)
+			{
+				strcpy(data[i].name,animal_data[i]);
+				data[i].len = strlen(animal_data[i]);
+		//		 printf("%s %d", data[i].name,data[i].len);
+			}	
+			break;
+	}
 	 
 	
-	srand((int)time(NULL));
+	
 	
     select_num = rand()%5;	   
 	select_data = data[select_num];
 	
 	for(i=0 ; i<select_data.len ; i++)
 		sol[i] = '_';
-	sol[select_data.len] = '\n';
+
 
 	while(1)
 	{
@@ -208,6 +208,13 @@ void * handle_clnt(void * arg)
 		}
 		else
 		{
+			used_alpha[strlen(used_alpha)+2] = '\0';
+			used_alpha[strlen(used_alpha)+1] = '\n';
+			used_alpha[strlen(used_alpha)-1] = msg[0];
+			used_alpha[strlen(used_alpha)] = ' ';
+		
+			printf("%s\n",used_alpha);
+			
 			check_fruit(msg[0]);	
 		}
 		
@@ -217,7 +224,14 @@ void * handle_clnt(void * arg)
 			end_send(clnt_sock);
 		}
 		else
-			send_msg(sol, select_data.len+1);
+		{
+			char temp[50];
+			
+			strcpy(temp,sol);
+			strcat(temp,used_alpha);
+			
+			send_msg(temp, strlen(temp)+1);
+		}
 	}
 	pthread_mutex_lock(&mutx);
 	for(i=0; i<clnt_cnt; i++)   // remove disconnected client
@@ -236,20 +250,20 @@ void * handle_clnt(void * arg)
 }
 void end_send(int sock)
 {
-    int i;
-    int check_clnt;
-    char msg[100] = { 0, };
-    pthread_mutex_lock(&mutx);
-    for (i = 0; i < clnt_cnt; i++)
-    {
-        if (clnt_socks[i] == sock)
-            check_clnt = i;
-    }
-
-    sprintf(msg, "Game end! Player %s win! Answer is %s (press q or Q to exit)\n", clnt_name[check_clnt], select_data.name);
-    for (i = 0; i < clnt_cnt; i++)
-        write(clnt_socks[i], msg, strlen(msg));
-    pthread_mutex_unlock(&mutx);
+	int i;
+	int check_clnt;
+	char msg[100] = {0,};
+	pthread_mutex_lock(&mutx);
+	for(i=0 ; i<clnt_cnt ; i++)
+	{
+		if(clnt_socks[i] == sock)
+			check_clnt = i;
+	}
+	
+	sprintf(msg,"Game end! Player %s win! Answer is %s (press q or Q to exit)\n",clnt_name[check_clnt],select_data.name); 
+	for(i=0 ; i<clnt_cnt ; i++)
+		write(clnt_socks[i],msg,strlen(msg));
+	pthread_mutex_unlock(&mutx);
 }
 
 void send_msg(char * msg, int len)   // send to all
