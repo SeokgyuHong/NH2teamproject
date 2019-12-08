@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <pthread.h>
 
-#define BUF_SIZE 100
+#define BUF_SIZE 200
 #define NAME_SIZE 20
 	
 void * send_msg(void * arg);
